@@ -5,9 +5,13 @@ import * as Font from "expo-font";
 import { Asset } from "expo-asset";
 import LoggedOutNav from "./navigators/LoggedOutNav";
 import { NavigationContainer } from "@react-navigation/native";
+import { ThemeProvider } from "styled-components/native";
+import { useColorScheme } from "react-native";
+import { darkTheme, lightTheme } from "./styles";
 
 export default function App() {
   const [loading, setLoading] = useState(true);
+  let colorScheme = useColorScheme();
 
   const onFinish = () => setLoading(false);
 
@@ -33,8 +37,10 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <LoggedOutNav />
-    </NavigationContainer>
+    <ThemeProvider theme={colorScheme === "light" ? lightTheme : darkTheme}>
+      <NavigationContainer>
+        <LoggedOutNav />
+      </NavigationContainer>
+    </ThemeProvider>
   );
 }
