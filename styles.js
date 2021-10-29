@@ -1,5 +1,13 @@
-import { createGlobalStyle } from "styled-components";
+export const darkTheme = {
+  backgroundColor: "black",
+  color: "white",
+};
 
-export const darkTheme = {};
+export const lightTheme = {
+  backgroundColor: "white",
+  color: "black",
+};
 
-export const lightTheme = {};
+export const colors = {
+  blue: "#0095F6",
+};
