@@ -13,7 +13,6 @@ export default () => {
         headerBackTitleVisible: false,
         headerTitle: "",
         headerTransparent: true,
-        headerTintColor: "white",
       }}
     >
       <Stack.Screen name="Welcome" component={Welcome} />

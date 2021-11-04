@@ -29,8 +29,8 @@ export default function AuthLayout({ children }) {
       <Container>
         <KeyboardAvoidingView
           style={{ width: "100%" }}
-          behavior="padding"
-          keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
+          behavior="position"
+          keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
         >
           <Logo
             resizeMode="contain"
