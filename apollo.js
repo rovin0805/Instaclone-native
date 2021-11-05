@@ -1,4 +1,6 @@
-import { ApolloClient, InMemoryCache } from "@apollo/client";
+import { ApolloClient, InMemoryCache, makeVar } from "@apollo/client";
+
+export const isLoggedIn = makeVar(false);
 
 const client = new ApolloClient({
   uri: "http://localhost:4000/graphql",

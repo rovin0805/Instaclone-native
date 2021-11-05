@@ -3,6 +3,18 @@ import { useForm } from "react-hook-form";
 import AuthButton from "../components/auth/AuthButton";
 import AuthLayout from "../components/auth/AuthLayout";
 import { TextInput } from "../components/auth/AuthShared";
+import { gql, useMutation } from "@apollo/client";
+import FormError from "../components/auth/FormError";
+
+const LOGIN_MUTATION = gql`
+  mutation login($username: String!, $password: String!) {
+    login(username: $username, password: $password) {
+      ok
+      token
+      error
+    }
+  }
+`;
 
 export default function Login({ navigation }) {
   const passwordRef = useRef();
@@ -11,21 +23,56 @@ export default function Login({ navigation }) {
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm();
+    watch,
+    clearErrors,
+  } = useForm({
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
+  const onCompleted = (data) => {
+    console.log("onCompleted", data);
+    const {
+      login: { ok, token },
+    } = data;
+    if (ok) {
+      isLoggedInVar(true);
+    }
+  };
+  const [logInMutation, { loading }] = useMutation(LOGIN_MUTATION, {
+    onCompleted,
+  });
 
   const onNext = () => passwordRef?.current?.focus();
 
+  const clearLoginError = (name) => clearErrors(name);
+
   const onValid = (data) => {
-    console.log("#", data);
+    if (!loading) {
+      console.log("onvalid", data);
+      logInMutation({
+        variables: {
+          ...data,
+        },
+      });
+    }
   };
 
   useEffect(() => {
-    register("username", { required: true });
-    register("password", { required: true });
+    register("username", {
+      required: "Username is required",
+      minLength: {
+        value: 3,
+        message: "Username should be longer than 3 chars.",
+      },
+    });
+    register("password", { required: "Password is required." });
   }, [register]);
 
   return (
     <AuthLayout>
+      <FormError message={errors?.username?.message} />
       <TextInput
         autoFocus
         placeholder="Username"
@@ -35,7 +82,9 @@ export default function Login({ navigation }) {
         blurOnSubmit={false}
         autoCapitalize="none"
         onChangeText={(text) => setValue("username", text)}
+        onFocus={() => clearLoginError("username")}
       />
+      <FormError message={errors?.password?.message} />
       <TextInput
         ref={passwordRef}
         placeholder="Password"
@@ -45,11 +94,12 @@ export default function Login({ navigation }) {
         placeholderTextColor={"lightgray"}
         onSubmitEditing={handleSubmit(onValid)}
         onChangeText={(text) => setValue("password", text)}
+        onFocus={() => clearLoginError("password")}
       />
       <AuthButton
         text="Log In"
-        disabled={false}
-        loading
+        disabled={!watch("username") || !watch("password")}
+        loading={loading}
         onPress={handleSubmit(onValid)}
       />
     </AuthLayout>
