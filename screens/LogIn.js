@@ -16,8 +16,9 @@ const LOGIN_MUTATION = gql`
   }
 `;
 
-export default function Login({ navigation }) {
+export default function Login({ route: { params } }) {
   const passwordRef = useRef();
+
   const {
     register,
     handleSubmit,
@@ -27,12 +28,12 @@ export default function Login({ navigation }) {
     clearErrors,
   } = useForm({
     defaultValues: {
-      username: "",
-      password: "",
+      username: params?.username,
+      password: params?.password,
     },
   });
+
   const onCompleted = (data) => {
-    console.log("onCompleted", data);
     const {
       login: { ok, token },
     } = data;
@@ -40,6 +41,7 @@ export default function Login({ navigation }) {
       isLoggedInVar(true);
     }
   };
+
   const [logInMutation, { loading }] = useMutation(LOGIN_MUTATION, {
     onCompleted,
   });
@@ -50,7 +52,6 @@ export default function Login({ navigation }) {
 
   const onValid = (data) => {
     if (!loading) {
-      console.log("onvalid", data);
       logInMutation({
         variables: {
           ...data,
@@ -74,6 +75,7 @@ export default function Login({ navigation }) {
     <AuthLayout>
       <FormError message={errors?.username?.message} />
       <TextInput
+        value={watch("username")}
         autoFocus
         placeholder="Username"
         returnKeyType="next"
@@ -86,6 +88,7 @@ export default function Login({ navigation }) {
       />
       <FormError message={errors?.password?.message} />
       <TextInput
+        value={watch("password")}
         ref={passwordRef}
         placeholder="Password"
         secureTextEntry
@@ -98,7 +101,7 @@ export default function Login({ navigation }) {
       />
       <AuthButton
         text="Log In"
-        disabled={!watch("username") || !watch("password")}
+        disabled={loading || !watch("username") || !watch("password")}
         loading={loading}
         onPress={handleSubmit(onValid)}
       />
