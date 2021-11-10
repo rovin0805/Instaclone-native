@@ -9,17 +9,18 @@ import { ThemeProvider } from "styled-components/native";
 import { useColorScheme } from "react-native";
 import { darkTheme, lightTheme } from "./styles";
 import { ApolloProvider, useReactiveVar } from "@apollo/client";
-import client, { isLoggedIn } from "./apollo";
+import client, { isLoggedInVar, tokenVar } from "./apollo";
 import LoggedInNav from "./navigators/LoggedInNav";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function App() {
   const [loading, setLoading] = useState(true);
   let colorScheme = useColorScheme();
-  const isLoggedInVar = useReactiveVar(isLoggedIn);
+  const isLoggedIn = useReactiveVar(isLoggedInVar);
 
   const onFinish = () => setLoading(false);
 
-  const preload = () => {
+  const preloadAssets = () => {
     const fontsToLoad = [Ionicons.font];
     const fontPromises = fontsToLoad.map((font) => Font.loadAsync(font));
     const imagesToLoad = [
@@ -28,6 +29,15 @@ export default function App() {
     ];
     const imagePromises = imagesToLoad.map((image) => Asset.loadAsync(image));
     return Promise.all([...fontPromises, ...imagePromises]);
+  };
+
+  const preload = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (token) {
+      isLoggedInVar(true);
+      tokenVar(token);
+    }
+    return preloadAssets();
   };
 
   if (loading) {
@@ -44,7 +54,7 @@ export default function App() {
     <ApolloProvider client={client}>
       <ThemeProvider theme={colorScheme === "light" ? lightTheme : darkTheme}>
         <NavigationContainer>
-          {isLoggedInVar ? <LoggedInNav /> : <LoggedOutNav />}
+          {isLoggedIn ? <LoggedInNav /> : <LoggedOutNav />}
         </NavigationContainer>
       </ThemeProvider>
     </ApolloProvider>
